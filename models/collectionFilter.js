@@ -1,11 +1,11 @@
 import * as utilities from '../utilities.js';
-// http://localhost:5000/api/contacts?fields=Name
-// http://localhost:5000/api/bookmarks?fields=Category&limit=4&offset=1
-// http://localhost:5000/api/bookmarks?fields=Category,Title&limit=3&offset=1&Category=c*&sort=Category&sort=Title,desc
-// http://localhost:5000/api/words?sort=Val,desc
-// http://localhost:5000/api/words?sort=Val,desc&limit=5&offset=20&Val=*z&fields=Val,Def,Gen
-// http://localhost:5000/api/Hurricanes?sort=Year,desc&limit=3&offset=0
-// http://localhost:5000/api/Hurricanes?Year.start=2020&Year.end=2024 
+// http://localhost:5001/api/contacts?fields=Name
+// http://localhost:5001/api/bookmarks?fields=Category&limit=4&offset=1
+// http://localhost:5001/api/bookmarks?fields=Category,Title&limit=3&offset=1&Category=c*&sort=Category&sort=Title,desc
+// http://localhost:5001/api/words?sort=Val,desc
+// http://localhost:5001/api/words?sort=Val,desc&limit=5&offset=20&Val=*z&fields=Val,Def,Gen
+// http://localhost:5001/api/Hurricanes?sort=Year,desc&limit=3&offset=0
+// http://localhost:5001/api/Hurricanes?Year.start=2020&Year.end=2024 
 
 export default class collectionFilter {
     constructor(collection, filterParams, model = null) {

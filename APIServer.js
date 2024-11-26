@@ -1,22 +1,22 @@
 
-import * as serverVariables from "./serverVariables.js";
-import * as os from "os";
-import { createServer } from 'http';
-import process from 'process';
 import dateAndTime from 'date-and-time';
+import { createServer } from 'http';
+import * as os from "os";
+import process from 'process';
+import CachedRequests from "./cachedRequestsManager.js";
+import { handleCORSPreflight } from './cors.js';
 import HttpContext from './httpContext.js';
 import MiddlewaresPipeline from './middlewaresPipeline.js';
 import * as router from './router.js';
-import { handleCORSPreflight } from './cors.js';
+import * as serverVariables from "./serverVariables.js";
 import { handleStaticResourceRequest } from './staticResourcesServer.js';
-import CachedRequests from "./cachedRequestsManager.js";
 
 let api_server_version = serverVariables.get("main.api_server_version");
 let hideHeadRequest = serverVariables.get("main.hideHeadRequest");
 global.Server_UTC_Offset = new Date().getTimezoneOffset() / 60;
 
 export default class APIServer {
-    constructor(port = process.env.PORT || 5000) {
+    constructor(port = process.env.PORT || 5001) {
         this.port = port;
         this.initMiddlewaresPipeline();
         this.httpContext = null;

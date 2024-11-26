@@ -231,7 +231,7 @@
     function webAPI_GET(queryString) {
         return new Promise(resolve => {
             $.ajax({
-                url: "http://localhost:5000/api/words" + queryString,
+                url: "http://localhost:5001/api/words" + queryString,
                 type: 'GET',
                 contentType: 'text/plain',
                 data: {},

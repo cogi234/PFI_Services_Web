@@ -1,5 +1,5 @@
 //const API_URL = "https://api-server-5.glitch.me/api/words";
-const API_URL = "http://localhost:5000/api/words";
+const API_URL = "http://localhost:5001/api/words";
 class API {
     static initHttpState() {
         this.currentHttpError = "";
