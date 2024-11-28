@@ -231,3 +231,12 @@ label {
 .displayNone {
     display:none;
 }
+
+.centered {
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+}
+.full-width {
+    width: 100%;
+}

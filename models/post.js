@@ -18,10 +18,9 @@ export default class Post extends Model {
     
     bindExtraData(instance) {
         instance = super.bindExtraData(instance);
-        
 
-        usersRepository = new Repository(new UserModel());
-        owner = usersRepository.get(instance.OwnerId);
+        let usersRepository = new Repository(new User());
+        let owner = usersRepository.get(instance.OwnerId);
 
         if (owner != null) {
             instance.OwnerName = owner.Name;

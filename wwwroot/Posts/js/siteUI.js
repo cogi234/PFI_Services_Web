@@ -39,58 +39,9 @@ async function Init_UI() {
     start_Periodic_Refresh();
 }
 
-/////////////////////////// Search keywords UI //////////////////////////////////////////////////////////
-
-function installKeywordsOnkeyupEvent() {
-    $("#searchKeys").on('keyup', function () {
-        clearTimeout(keywordsOnchangeTimger);
-        keywordsOnchangeTimger = setTimeout(() => {
-            cleanSearchKeywords();
-            showPosts(true);
-        }, keywordsOnchangeDelay);
-    });
-    $("#searchKeys").on('search', function () {
-        showPosts(true);
-    });
-}
-function cleanSearchKeywords() {
-    /* Keep only keywords of 3 characters or more */
-    let keywords = $("#searchKeys").val().trim().split(' ');
-    let cleanedKeywords = "";
-    keywords.forEach(keyword => {
-        if (keyword.length >= minKeywordLenth) cleanedKeywords += keyword + " ";
-    });
-    $("#searchKeys").val(cleanedKeywords.trim());
-}
-function showSearchIcon() {
-    $("#hiddenIcon").hide();
-    $("#showSearch").show();
-    if (showKeywords) {
-        $("#searchKeys").show();
-    }
-    else
-        $("#searchKeys").hide();
-}
-function hideSearchIcon() {
-    $("#hiddenIcon").show();
-    $("#showSearch").hide();
-    $("#searchKeys").hide();
-}
-function toogleShowKeywords() {
-    showKeywords = !showKeywords;
-    if (showKeywords) {
-        $("#searchKeys").show();
-        $("#searchKeys").focus();
-    }
-    else {
-        $("#searchKeys").hide();
-        showPosts(true);
-    }
-}
-
 /////////////////////////// Views management ////////////////////////////////////////////////////////////
 
-function intialView() {
+function initialView() {
     $("#createPost").show();
     $("#hiddenIcon").hide();
     $("#hiddenIcon2").hide();
@@ -104,7 +55,7 @@ function intialView() {
     showSearchIcon();
 }
 async function showPosts(reset = false) {
-    intialView();
+    initialView();
     $("#viewTitle").text("Fil de nouvelles");
     periodic_Refresh_paused = false;
     await postsPanel.show(reset);
@@ -160,8 +111,14 @@ function showAbout() {
     $("#viewTitle").text("À propos...");
     $("#aboutContainer").show();
 }
-
-//////////////////////////// Posts rendering /////////////////////////////////////////////////////////////
+function showConnectionForm() {
+    showForm();
+    $('#commit').hide();
+    $("#hiddenIcon").show();
+    $("#hiddenIcon2").show();
+    $("#viewTitle").text("Connexion");
+    renderConnectionForm();
+}
 
 //////////////////////////// Posts rendering /////////////////////////////////////////////////////////////
 
@@ -254,6 +211,14 @@ function updateDropDownMenu() {
     let DDMenu = $("#DDMenu");
     let selectClass = selectedCategory === "" ? "fa-check" : "fa-fw";
     DDMenu.empty();
+    //User management
+    DDMenu.append($(`
+        <div class="dropdown-item menuItemLayout" id="connectCmd">
+            <i class="menuIcon fa fa-arrow-right-to-bracket mx-2"></i> Connexion
+        </div>
+        `));
+    //Categories
+    DDMenu.append($(`<div class="dropdown-divider"></div>`));
     DDMenu.append($(`
         <div class="dropdown-item menuItemLayout" id="allCatCmd">
             <i class="menuIcon fa ${selectClass} mx-2"></i> Toutes les catégories
@@ -268,12 +233,18 @@ function updateDropDownMenu() {
             </div>
         `));
     })
+    //About
     DDMenu.append($(`<div class="dropdown-divider"></div> `));
     DDMenu.append($(`
         <div class="dropdown-item menuItemLayout" id="aboutCmd">
             <i class="menuIcon fa fa-info-circle mx-2"></i> À propos...
         </div>
         `));
+
+    //Commands
+    $('#connectCmd').on("click", function () {
+        showConnectionForm();
+    });
     $('#aboutCmd').on("click", function () {
         showAbout();
     });
@@ -443,7 +414,6 @@ function newPost() {
 function renderPostForm(post = null) {
     let create = post == null;
     if (create) post = newPost();
-    $("#form").show();
     $("#form").empty();
     $("#form").append(`
         <form class="form" id="postForm">
@@ -523,6 +493,63 @@ function renderPostForm(post = null) {
         await showPosts();
     });
 }
+function renderConnectionForm(){
+    $("#form").empty();
+    $("#form").append(`
+        <form class="form centered" style="width: 50%; min-width: 300px; padding-top: 2rem;"
+            id="connectForm">
+            <input class="form-control Email full-width"
+                name="Email"
+                id="Email"
+                placeholder="Courriel"
+                required
+                style="margin: 1rem 0px;"
+            />
+            <input class="form-control full-width"
+                type="password"
+                name="Password" 
+                id="Password"
+                placeholder="Mot de passe"
+                required
+                RequireMessage="Mot de passe incorrect"
+                InvalidMessage="Mot de passe incorrect"
+                style="margin: 1rem 0px;"
+            />
+            <input 
+                type="submit" 
+                value="Se connecter" 
+                id="login" 
+                class="btn btn-primary full-width"
+                style="margin: 1rem 0px;"
+            />
+            <hr>
+            <input 
+                type="button" 
+                value="Nouveau Compte" 
+                id="login" 
+                class="btn btn-info full-width"
+                style="margin: 1rem 0px;"
+            />
+        </form>
+    `);
+
+    initImageUploaders();
+    initFormValidation(); // important do to after all html injection!
+
+    $('#connectForm').off();
+    $('#connectForm').on("submit", async function (event) {
+        event.preventDefault();
+        let connectData = getFormData($("#connectForm"));
+        post = await Posts_API.Save(post, create);
+        if (!Posts_API.error) {
+            await showPosts();
+            postsPanel.scrollToElem(post.Id);
+        }
+        else
+            showError("Une erreur est survenue! ", Posts_API.currentHttpError);
+    });
+}
+
 function getFormData($form) {
     // prevent html injections
     const removeTag = new RegExp("(<[a-zA-Z0-9]+>)|(</[a-zA-Z0-9]+>)", "g");
@@ -532,4 +559,53 @@ function getFormData($form) {
         jsonObject[control.name] = control.value.replace(removeTag, "");
     });
     return jsonObject;
+}
+
+/////////////////////////// Search keywords UI //////////////////////////////////////////////////////////
+
+function installKeywordsOnkeyupEvent() {
+    $("#searchKeys").on('keyup', function () {
+        clearTimeout(keywordsOnchangeTimger);
+        keywordsOnchangeTimger = setTimeout(() => {
+            cleanSearchKeywords();
+            showPosts(true);
+        }, keywordsOnchangeDelay);
+    });
+    $("#searchKeys").on('search', function () {
+        showPosts(true);
+    });
+}
+function cleanSearchKeywords() {
+    /* Keep only keywords of 3 characters or more */
+    let keywords = $("#searchKeys").val().trim().split(' ');
+    let cleanedKeywords = "";
+    keywords.forEach(keyword => {
+        if (keyword.length >= minKeywordLenth) cleanedKeywords += keyword + " ";
+    });
+    $("#searchKeys").val(cleanedKeywords.trim());
+}
+function showSearchIcon() {
+    $("#hiddenIcon").hide();
+    $("#showSearch").show();
+    if (showKeywords) {
+        $("#searchKeys").show();
+    }
+    else
+        $("#searchKeys").hide();
+}
+function hideSearchIcon() {
+    $("#hiddenIcon").show();
+    $("#showSearch").hide();
+    $("#searchKeys").hide();
+}
+function toogleShowKeywords() {
+    showKeywords = !showKeywords;
+    if (showKeywords) {
+        $("#searchKeys").show();
+        $("#searchKeys").focus();
+    }
+    else {
+        $("#searchKeys").hide();
+        showPosts(true);
+    }
 }
