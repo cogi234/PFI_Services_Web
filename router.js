@@ -1,5 +1,5 @@
-import RouteRegister from './routeRegister.js';
 import AccountsController from "./controllers/AccountsController.js";
+import RouteRegister from './routeRegister.js';
 
 export const API_EndPoint = function (HttpContext) {
     return new Promise(async resolve => {
@@ -86,9 +86,9 @@ export const Registered_EndPoint = function (HttpContext) {
                 HttpContext.response.notFound();
                 resolve(true);
             }
-        }
-        resolve(false);
-    })
+        } else
+            resolve(false);
+    });
 }
 
 

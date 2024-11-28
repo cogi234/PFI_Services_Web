@@ -1,8 +1,8 @@
 
-import * as utilities from './utilities.js';
-import * as ServerVariables from "./serverVariables.js";
 import crypto from 'crypto';
 import { log } from "./log.js";
+import * as ServerVariables from "./serverVariables.js";
+import * as utilities from './utilities.js';
 
 global.cachedTokens = [];
 global.tokenLifeDuration = ServerVariables.get("main.token.lifeDuration");
@@ -80,7 +80,7 @@ export default
         }
         cachedTokens = cachedTokens.filter(token => token.Expire_Time > utilities.nowInSeconds());
     }
-    static findAccesToken(access_token, renew = true) {
+    static findAccessToken(access_token, renew = true) {
         for (let token of cachedTokens) {
             if (token.Access_token == access_token) {
                 if (renew) {
@@ -89,14 +89,14 @@ export default
                 }
                 return token;
             }
-            return null;
         }
+        return null;
     }
     static getUser(req) {
         if (req.headers["authorization"] != undefined) {
             // Extract bearer token from head of the http request
             let access_token = req.headers["authorization"].replace('Bearer ', '');
-            let token = this.findAccesToken(access_token);
+            let token = this.findAccessToken(access_token);
             if (token && token.User)
                 return token.User;
         }
