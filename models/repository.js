@@ -32,7 +32,10 @@ export default class Repository {
         else null;
     }
     newETag() {
-        this.ETag = uuidv1();
+        // include objects count in the returned Etag.
+        // this is usefull when client want to check if 
+        // the count of items has changed
+        this.ETag = this.count() + "-" + uuidv1();
         repositoryEtags[this.objectsName] = this.ETag;
     }
     objects() {
@@ -116,7 +119,7 @@ export default class Repository {
         }
         return object;
     }
-    update(id, object) {
+    update(id, object, handleAssets = true) {
         let objectToModify = {...object};
         delete objectToModify.Id;
         if (!this.model.securedId)
@@ -128,7 +131,8 @@ export default class Repository {
             if (index > -1) {
                 this.checkConflict(objectToModify);
                 if (!this.model.state.inConflict) {
-                    this.model.handleAssets(objectToModify, this.objectsList[index]);
+                    if (handleAssets)
+                        this.model.handleAssets(objectToModify, this.objectsList[index]);
                     this.objectsList[index] = objectToModify;
                     this.write();
                 }
