@@ -217,7 +217,7 @@ async function compileCategories() {
             })
             if (!categories.includes(selectedCategory))
                 selectedCategory = "";
-            updateDropDownMenu(categories);
+            updateDropDownMenu();
         }
     }
 }
@@ -226,11 +226,22 @@ function updateDropDownMenu() {
     let selectClass = selectedCategory === "" ? "fa-check" : "fa-fw";
     DDMenu.empty();
     //User management
-    DDMenu.append($(`
-        <div class="dropdown-item menuItemLayout" id="connectCmd">
-            <i class="menuIcon fa fa-arrow-right-to-bracket mx-2"></i> Connexion
-        </div>
-        `));
+    if (Accounts_API.loggedIn()) {
+        DDMenu.append($(`
+            <div class="dropdown-item menuItemLayout" id="profileCmd">
+                <i class="menuIcon fa fa-user-pen mx-2"></i> Modifier votre profil
+            </div>
+            <div class="dropdown-item menuItemLayout" id="disconnectCmd">
+                <i class="menuIcon fa fa-arrow-right-from-bracket mx-2"></i> Déconnexion
+            </div>
+            `));
+    } else {
+        DDMenu.append($(`
+            <div class="dropdown-item menuItemLayout" id="connectCmd">
+                <i class="menuIcon fa fa-arrow-right-to-bracket mx-2"></i> Connexion
+            </div>
+            `));
+    }
     //Categories
     DDMenu.append($(`<div class="dropdown-divider"></div>`));
     DDMenu.append($(`
@@ -258,6 +269,14 @@ function updateDropDownMenu() {
     //Commands
     $('#connectCmd').on("click", function () {
         showConnectionForm();
+    });
+    $('#disconnectCmd').on("click", async function () {
+        Accounts_API.Logout();
+        if (!Accounts_API.error) {
+            Accounts_API.deleteSessionData();
+            await showPosts(true);
+            updateDropDownMenu();
+        }
     });
     $('#aboutCmd').on("click", function () {
         showAbout();
@@ -555,10 +574,13 @@ function renderConnectionForm(){
     $('#connectForm').on("submit", async function (event) {
         event.preventDefault();
         let connectData = getFormData($("#connectForm"));
-        post = await Posts_API.Save(post, create);
-        if (!Posts_API.error) {
+        result = await Accounts_API.Login(connectData);
+        console.log(result);
+        if (!Accounts_API.error) {
+            Accounts_API.saveUserData(result.User);
+            Accounts_API.saveAuthToken(result.Access_token);
+            updateDropDownMenu();
             await showPosts();
-            postsPanel.scrollToElem(post.Id);
         }
         else
             showError("Une erreur est survenue! ", Posts_API.currentHttpError);
