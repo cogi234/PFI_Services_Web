@@ -8,8 +8,7 @@ global.cachedTokens = [];
 global.tokenLifeDuration = ServerVariables.get("main.token.lifeDuration");
 global.tokensCleanerStarted = false;
 
-export default
-    class TokensManager {
+export default class TokensManager {
     static create(user) {
         if (!tokensCleanerStarted) {
             tokensCleanerStarted = true;

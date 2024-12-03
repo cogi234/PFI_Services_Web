@@ -42,6 +42,9 @@ export default class Repository {
         if (this.objectsList == null) this.read();
         return this.objectsList;
     }
+    count() {
+        return this.objects().length;
+    }
     read() {
         this.objectsList = null;
         if (this.cached) {
