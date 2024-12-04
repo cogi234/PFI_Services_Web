@@ -120,6 +120,14 @@ function showConnectionForm() {
     $("#viewTitle").text("Connexion");
     renderConnectionForm();
 }
+function showRegisterForm() {
+    showForm();
+    $('#commit').hide();
+    $("#hiddenIcon").show();
+    $("#hiddenIcon2").show();
+    $("#viewTitle").text("Inscription");
+    renderRegisterForm();
+}
 
 //////////////////////////// Posts rendering /////////////////////////////////////////////////////////////
 
@@ -539,6 +547,71 @@ function renderConnectionForm(){
                 required
                 style="margin: 1rem 0px;"
             />
+            <input class="form-control full-width"
+                type="password"
+                name="Password" 
+                id="Password"
+                placeholder="Mot de passe"
+                required
+                RequireMessage="Mot de passe incorrect"
+                InvalidMessage="Mot de passe incorrect"
+                style="margin: 1rem 0px;"
+            />
+            <input 
+                type="submit" 
+                value="Se connecter" 
+                id="login" 
+                class="btn btn-primary full-width"
+                style="margin: 1rem 0px;"
+            />
+            <hr>
+            <input 
+                type="button" 
+                value="Nouveau Compte" 
+                id="registerCmd" 
+                class="btn btn-info full-width"
+                style="margin: 1rem 0px;"
+            />
+        </form>
+    `);
+
+    initFormValidation(); // important do to after all html injection!
+
+    $('#connectForm').off();
+    $('#connectForm').on("submit", async function (event) {
+        event.preventDefault();
+        let connectData = getFormData($("#connectForm"));
+        result = await Accounts_API.Login(connectData);
+        console.log(result);
+        if (!Accounts_API.error) {
+            Accounts_API.saveUserData(result.User);
+            Accounts_API.saveAuthToken(result.Access_token);
+            updateDropDownMenu();
+            await showPosts();
+        }
+        else
+            showError("Une erreur est survenue! ", Posts_API.currentHttpError);
+    });
+    $('#registerCmd').off();
+    $('#registerCmd').on("click", function () {
+        showRegisterForm();
+    });
+}
+function renderRegisterForm(){
+    $("#form").empty();
+    $("#form").append(`
+        <form class="form centered" style="width: 50%; min-width: 300px; padding-top: 2rem;"
+            id="registerForm">
+            <div class="input-group">
+                <label for="Email" class="form-label full-width">Adresse courriel</label>
+                <input class="form-control Email full-width"
+                    name="Email"
+                    id="Email"
+                    placeholder="Courriel"
+                    required
+                    style="margin: 1rem 0px;"
+                />
+            </div>
             <input class="form-control full-width"
                 type="password"
                 name="Password" 

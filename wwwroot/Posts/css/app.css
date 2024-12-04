@@ -263,3 +263,10 @@ label {
 .full-width {
     width: 100%;
 }
+
+.input-group {
+    border-style: solid;
+    border-radius: var(--borderRadius);
+    border-color: var(--borderColor);
+    padding: var(--panelPadding);
+}
