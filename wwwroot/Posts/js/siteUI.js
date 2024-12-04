@@ -112,13 +112,13 @@ function showAbout() {
     $("#viewTitle").text("À propos...");
     $("#aboutContainer").show();
 }
-function showConnectionForm() {
+function showConnectionForm(message = null) {
     showForm();
     $('#commit').hide();
     $("#hiddenIcon").show();
     $("#hiddenIcon2").show();
     $("#viewTitle").text("Connexion");
-    renderConnectionForm();
+    renderConnectionForm(message);
 }
 function showRegisterForm() {
     showForm();
@@ -535,8 +535,13 @@ function renderPostForm(post = null) {
         await showPosts();
     });
 }
-function renderConnectionForm(){
+function renderConnectionForm(message){
     $("#form").empty();
+    if (message !== null) {
+        $("#form").append(`
+            <h2 style="text-align: center; margin-top: 1rem;">${message}</h2>
+        `);
+    }
     $("#form").append(`
         <form class="form centered" style="width: 50%; min-width: 300px; padding-top: 2rem;"
             id="connectForm">
@@ -608,33 +613,73 @@ function renderRegisterForm(){
                     name="Email"
                     id="Email"
                     placeholder="Courriel"
+                    CustomErrorMessage="Ce courriel est déjà utilisé"
+                    required
+                    style="margin: 1rem 0px;"
+                /><br>
+                <input class="form-control MatchedInput full-width"
+                    matchedInputId="Email"
+                    name="EmailVerification"
+                    id="EmailVerification"
+                    placeholder="Vérification"
                     required
                     style="margin: 1rem 0px;"
                 />
             </div>
-            <input class="form-control full-width"
-                type="password"
-                name="Password" 
-                id="Password"
-                placeholder="Mot de passe"
-                required
-                RequireMessage="Mot de passe incorrect"
-                InvalidMessage="Mot de passe incorrect"
-                style="margin: 1rem 0px;"
-            />
+            <div class="input-group">
+                <label for="Password" class="form-label full-width">Mot de passe</label>
+                <input class="form-control full-width"
+                    type="password"
+                    name="Password" 
+                    id="Password"
+                    placeholder="Mot de passe"
+                    required
+                    InvalidMessage="Mot de passe incorrect"
+                    style="margin: 1rem 0px;"
+                /><br>
+                <input class="form-control MatchedInput full-width"
+                    type="password"
+                    matchedInputId="Password"
+                    name="PasswordVerification"
+                    id="PasswordVerification"
+                    placeholder="Vérification"
+                    required
+                    style="margin: 1rem 0px;"
+                />
+            </div>
+            <div class="input-group">
+                <label for="Name" class="form-label full-width">Nom</label>
+                <input class="form-control full-width Alpha"
+                    name="Name" 
+                    id="Name"
+                    placeholder="Nom"
+                    required
+                    style="margin: 1rem 0px;"
+                />
+            </div>
+            <div class="input-group">
+                <label class="form-label">Avatar </label>
+                <div class='imageUploaderContainer'>
+                    <div class='imageUploader' 
+                        controlId='Avatar'
+                        newImage='true'
+                        imageSrc='no-avatar.png' 
+                        waitingImage="Loading_icon.gif">
+                    </div>
+                </div>
+            </div>
             <input 
                 type="submit" 
-                value="Se connecter" 
-                id="login" 
+                value="S'inscrire" 
+                id="register" 
                 class="btn btn-primary full-width"
                 style="margin: 1rem 0px;"
             />
-            <hr>
             <input 
                 type="button" 
-                value="Nouveau Compte" 
-                id="login" 
-                class="btn btn-info full-width"
+                value="Annuler" 
+                id="cancelCmd" 
+                class="btn btn-secondary full-width"
                 style="margin: 1rem 0px;"
             />
         </form>
@@ -642,21 +687,23 @@ function renderRegisterForm(){
 
     initImageUploaders();
     initFormValidation(); // important do to after all html injection!
+    addConflictValidation(Accounts_API.API_URL() + "/conflict", "Email", "register");// Validate email conflicts
 
-    $('#connectForm').off();
-    $('#connectForm').on("submit", async function (event) {
+    $('#registerForm').off();
+    $('#registerForm').on("submit", async function (event) {
         event.preventDefault();
-        let connectData = getFormData($("#connectForm"));
-        result = await Accounts_API.Login(connectData);
+        let registerData = getFormData($("#registerForm"));
+        result = await Accounts_API.Register(registerData);
         console.log(result);
         if (!Accounts_API.error) {
-            Accounts_API.saveUserData(result.User);
-            Accounts_API.saveAuthToken(result.Access_token);
-            updateDropDownMenu();
-            await showPosts();
+            showConnectionForm("Votre compte a été créé. Veuillez vérifier vos courriels pour récupérer votre code de vérification.");
         }
         else
             showError("Une erreur est survenue! ", Posts_API.currentHttpError);
+    });
+    $('#cancelCmd').off();
+    $('#cancelCmd').on("click", async function () {
+        showConnectionForm();
     });
 }
 

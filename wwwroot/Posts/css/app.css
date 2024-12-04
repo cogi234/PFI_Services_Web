@@ -261,7 +261,7 @@ label {
     display: block;
 }
 .full-width {
-    width: 100%;
+    width: 100% !important;
 }
 
 .input-group {
@@ -269,4 +269,9 @@ label {
     border-radius: var(--borderRadius);
     border-color: var(--borderColor);
     padding: var(--panelPadding);
+    display: block;
+    margin: 1rem 0px;
+}
+.input-group > input {
+    margin: 0px !important;
 }

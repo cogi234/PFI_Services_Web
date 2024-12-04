@@ -62,12 +62,26 @@ class Accounts_API {
             });
         });
     }
-
+    // GET: /accounts/logout?userId={userId}
     static async Logout() {
         Accounts_API.initHttpState();
         return new Promise(resolve => {
             $.ajax({
                 url: this.API_URL() + "/logout?userId=" + this.retrieveUserData().Id,
+                success: (data) => { resolve(data); },
+                error: (xhr) => { Accounts_API.setHttpErrorState(xhr); resolve(null); }
+            });
+        });
+    }
+    // POST: account/register body payload[{"Id": 0, "Name": "...", "Email": "...", "Password": "..."}]
+    static async Register(data) {
+        Accounts_API.initHttpState();
+        return new Promise(resolve => {
+            $.ajax({
+                url: this.API_URL() + "/register",
+                type: "POST",
+                contentType: 'application/json',
+                data: JSON.stringify(data),
                 success: (data) => { resolve(data); },
                 error: (xhr) => { Accounts_API.setHttpErrorState(xhr); resolve(null); }
             });
