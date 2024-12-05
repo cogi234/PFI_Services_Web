@@ -68,7 +68,7 @@ class Posts_API {
             $.ajax({
                 url: this.API_URL() + "/" + id,
                 type: "DELETE",
-                complete: () => {
+                success: () => {
                     Posts_API.initHttpState();
                     resolve(true);
                 },
