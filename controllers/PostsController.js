@@ -4,6 +4,7 @@ import Controller from './Controller.js';
 
 export default class PostModelsController extends Controller {
     constructor(HttpContext) {
-        super(HttpContext, new Repository(new PostModel()));
+        // anyone can read posts. Only super-users can write them
+        super(HttpContext, new Repository(new PostModel()), { readAccess: 0, writeAccess: 2 });
     }
 }
