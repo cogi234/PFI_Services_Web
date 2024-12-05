@@ -565,6 +565,7 @@ function renderConnectionForm(message){
                 required
                 style="margin: 1rem 0px;"
             />
+            <div class="text-danger" id="email-error"></div>
             <input class="form-control full-width"
                 type="password"
                 name="Password" 
@@ -575,6 +576,7 @@ function renderConnectionForm(message){
                 InvalidMessage="Mot de passe incorrect"
                 style="margin: 1rem 0px;"
             />
+            <div class="text-danger" id="password-error"></div>
             <input 
                 type="submit" 
                 value="Se connecter" 
@@ -598,6 +600,10 @@ function renderConnectionForm(message){
     $('#connectForm').off();
     $('#connectForm').on("submit", async function (event) {
         event.preventDefault();
+        
+        $('#email-error').empty();
+        $('#password-error').empty();
+
         let connectData = getFormData($("#connectForm"));
         result = await Accounts_API.Login(connectData);
         if (!Accounts_API.error) {
@@ -605,8 +611,12 @@ function renderConnectionForm(message){
             Accounts_API.saveAuthToken(result.Access_token);
             updateDropDownMenu();
             await showPosts();
+        }  else if (Accounts_API.currentStatus == 481) {
+            $('#email-error').text('Courriel introuvable');
+        }  else if (Accounts_API.currentStatus == 482) {
+            $('#password-error').text('Mot de passe incorrect');
         } else
-            showError("Une erreur est survenue! ", Posts_API.currentHttpError);
+            showError("Une erreur est survenue! ", Accounts_API.currentHttpError);
     });
     $('#registerCmd').off();
     $('#registerCmd').on("click", function () {
