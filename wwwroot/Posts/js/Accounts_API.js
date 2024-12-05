@@ -35,6 +35,9 @@ class Accounts_API {
     static loggedIn() {
         return this.retrieveAuthToken() !== null;
     }
+    static verified() {
+        return this.loggedIn() && this.retrieveUserData().VerifyCode == "verified";
+    }
     static getReadAccess() {
         if (!this.loggedIn())
             return 0;
@@ -87,7 +90,17 @@ class Accounts_API {
             });
         });
     }
-
+    //GET : /accounts/verify?id=...&code=.....
+    static async Verify(code) {
+        Accounts_API.initHttpState();
+        return new Promise(resolve => {
+            $.ajax({
+                url: this.API_URL() + "/verify?id=" + this.retrieveUserData().Id + "&code=" + code,
+                success: (data) => { resolve(data); },
+                error: (xhr) => { Accounts_API.setHttpErrorState(xhr); resolve(null); }
+            });
+        });
+    }
 
     //#endregion
 }

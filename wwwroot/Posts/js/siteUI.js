@@ -57,6 +57,11 @@ function initialView() {
 }
 async function showPosts(reset = false) {
     initialView();
+    //If we're logged in but not verified, we need to verify
+    if (Accounts_API.loggedIn() && !Accounts_API.verified()) {
+        showVerificationForm();
+        return;
+    }
     $("#viewTitle").text("Fil de nouvelles");
     periodic_Refresh_paused = false;
     await postsPanel.show(reset);
@@ -127,6 +132,14 @@ function showRegisterForm() {
     $("#hiddenIcon2").show();
     $("#viewTitle").text("Inscription");
     renderRegisterForm();
+}
+function showVerificationForm() {
+    showForm();
+    $('#commit').hide();
+    $("#hiddenIcon").show();
+    $("#hiddenIcon2").show();
+    $("#viewTitle").text("Vérification");
+    renderVerificationForm();
 }
 
 //////////////////////////// Posts rendering /////////////////////////////////////////////////////////////
@@ -282,8 +295,8 @@ function updateDropDownMenu() {
         Accounts_API.Logout();
         if (!Accounts_API.error) {
             Accounts_API.deleteSessionData();
-            await showPosts(true);
             updateDropDownMenu();
+            await showPosts(true);
         }
     });
     $('#aboutCmd').on("click", function () {
@@ -587,14 +600,12 @@ function renderConnectionForm(message){
         event.preventDefault();
         let connectData = getFormData($("#connectForm"));
         result = await Accounts_API.Login(connectData);
-        console.log(result);
         if (!Accounts_API.error) {
             Accounts_API.saveUserData(result.User);
             Accounts_API.saveAuthToken(result.Access_token);
             updateDropDownMenu();
             await showPosts();
-        }
-        else
+        } else
             showError("Une erreur est survenue! ", Posts_API.currentHttpError);
     });
     $('#registerCmd').off();
@@ -694,16 +705,54 @@ function renderRegisterForm(){
         event.preventDefault();
         let registerData = getFormData($("#registerForm"));
         result = await Accounts_API.Register(registerData);
-        console.log(result);
         if (!Accounts_API.error) {
             showConnectionForm("Votre compte a été créé. Veuillez vérifier vos courriels pour récupérer votre code de vérification.");
-        }
-        else
+        } else
             showError("Une erreur est survenue! ", Posts_API.currentHttpError);
     });
     $('#cancelCmd').off();
     $('#cancelCmd').on("click", async function () {
         showConnectionForm();
+    });
+}
+function renderVerificationForm(){
+    $("#form").empty();
+    $("#form").append(`
+        <form class="form centered" style="width: 50%; min-width: 300px; padding-top: 2rem;"
+            id="verifyForm">
+            <label for="Code" class="form-label full-width">Nom</label>
+            <input class="form-control full-width"
+                name="Code"
+                id="Code"
+                placeholder="Code de vérification"
+                required
+                style="margin: 1rem 0px;"
+            />
+            <input 
+                type="submit" 
+                value="Vérifier" 
+                id="verify" 
+                class="btn btn-primary full-width"
+                style="margin: 1rem 0px;"
+            />
+        </form>
+    `);
+
+    initFormValidation(); // important do to after all html injection!
+
+    $('#verifyForm').off();
+    $('#verifyForm').on("submit", async function (event) {
+        event.preventDefault();
+        let verificationCode = getFormData($("#verifyForm")).Code;
+        result = await Accounts_API.Verify(verificationCode);
+        console.log(result);
+        if (!Accounts_API.error) {
+            let user = Accounts_API.retrieveUserData();
+            user.VerifyCode = "verified";
+            Accounts_API.saveUserData(user);
+            await showPosts();
+        } else
+            showError("Une erreur est survenue! ", Posts_API.currentHttpError);
     });
 }
 
