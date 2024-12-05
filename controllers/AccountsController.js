@@ -92,7 +92,7 @@ export default class AccountsController extends Controller {
                         this.HttpContext.response.unprocessable();
                     }
                 } else {
-                    this.HttpContext.response.unverifiedUser("Verification code does not matched.");
+                    this.HttpContext.response.unverifiedUser("Verification code does not match.");
                 }
             } else {
                 this.HttpContext.response.unprocessable();

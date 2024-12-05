@@ -718,7 +718,7 @@ function renderRegisterForm(){
         if (!Accounts_API.error) {
             showConnectionForm("Votre compte a été créé. Veuillez vérifier vos courriels pour récupérer votre code de vérification.");
         } else
-            showError("Une erreur est survenue! ", Posts_API.currentHttpError);
+            showError("Une erreur est survenue! ", Accounts_API.currentHttpError);
     });
     $('#cancelCmd').off();
     $('#cancelCmd').on("click", async function () {
@@ -753,16 +753,20 @@ function renderVerificationForm(){
     $('#verifyForm').off();
     $('#verifyForm').on("submit", async function (event) {
         event.preventDefault();
+
+        $('#code-error').empty();
+        
         let verificationCode = getFormData($("#verifyForm")).Code;
         result = await Accounts_API.Verify(verificationCode);
-        console.log(result);
         if (!Accounts_API.error) {
             let user = Accounts_API.retrieveUserData();
             user.VerifyCode = "verified";
             Accounts_API.saveUserData(user);
             await showPosts();
+        } else if (Accounts_API.currentStatus == 480) {
+            $('#code-error').text('Code de vérification invalide');
         } else
-            showError("Une erreur est survenue! ", Posts_API.currentHttpError);
+            showError("Une erreur est survenue! ", Accounts_API.currentHttpError);
     });
 }
 
