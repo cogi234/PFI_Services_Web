@@ -47,6 +47,18 @@ export default class AccessControl {
         }
         return true;
     }
+    static writeGrantedAdminAndOwner(HttpContext, requiredAccess, id) {
+        if (requiredAccess) {
+            if (HttpContext.user && HttpContext.authorizations)
+                return (
+                    authorizations.writeAccess >= requiredAccess.writeAccess &&
+                    HttpContext.user.Id == id
+                );
+            else
+                return false;
+        }
+        return false;
+    }
     static writeGrantedAdminOrOwner(HttpContext, requiredAccess, id) {
         if (requiredAccess) {
             if (requiredAccess.writeAccess == 0) return true;
