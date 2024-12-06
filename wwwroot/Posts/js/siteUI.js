@@ -305,6 +305,9 @@ function updateDropDownMenu() {
     $('#connectCmd').on("click", function () {
         showConnectionForm();
     });
+    $('#profileCmd').on("click", function () {
+        showProfileForm();
+    });
     $('#disconnectCmd').on("click", async function () {
         Accounts_API.Logout();
         if (!Accounts_API.error) {
@@ -745,6 +748,7 @@ function renderProfileForm(){
     $("#form").append(`
         <form class="form centered" style="width: 50%; min-width: 300px; padding-top: 2rem;"
             id="profileForm">
+            <input type="hidden" name="Id" id="Id" value="${originalUser.Id}">
             <div class="input-group">
                 <label for="Email" class="form-label full-width">Adresse courriel</label>
                 <input class="form-control Email full-width"
