@@ -107,6 +107,20 @@ class Accounts_API {
             });
         });
     }
+    // GET:account/remove/id
+    static async Delete() {
+        Accounts_API.initHttpState();
+        return new Promise(resolve => {
+            $.ajax({
+                url: this.API_URL() + "/delete/" + this.retrieveUserData().Id,
+                headers: {
+                    'authorization' : `Bearer ${Accounts_API.retrieveAuthToken()}`
+                },
+                success: (data) => { resolve(data); },
+                error: (xhr) => { Accounts_API.setHttpErrorState(xhr); resolve(null); }
+            });
+        });
+    }
     //GET : /accounts/verify?id=...&code=.....
     static async Verify(code) {
         Accounts_API.initHttpState();
