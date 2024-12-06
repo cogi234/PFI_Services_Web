@@ -112,11 +112,11 @@ class Accounts_API {
         Accounts_API.initHttpState();
         return new Promise(resolve => {
             $.ajax({
-                url: this.API_URL() + "/delete/" + this.retrieveUserData().Id,
+                url: this.API_URL() + "/remove/" + this.retrieveUserData().Id,
                 headers: {
                     'authorization' : `Bearer ${Accounts_API.retrieveAuthToken()}`
                 },
-                success: (data) => { resolve(data); },
+                complete: (data) => { resolve(data); },
                 error: (xhr) => { Accounts_API.setHttpErrorState(xhr); resolve(null); }
             });
         });

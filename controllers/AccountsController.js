@@ -205,7 +205,7 @@ export default class AccountsController extends Controller {
 
     // GET:account/remove/id
     remove(id) { // warning! this is not an API endpoint 
-        if (AccessControl.writeGrantedAdminOrOwner(this.HttpContext.authorizations, this.requiredAuthorizations, id)) {
+        if (AccessControl.writeGrantedAdminOrOwner(this.HttpContext, this.requiredAuthorizations, id)) {
             if (this.HttpContext.path.id !== '') {
                 if (this.repository.remove(id))
                     this.HttpContext.response.accepted();

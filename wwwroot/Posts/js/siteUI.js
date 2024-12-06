@@ -141,6 +141,14 @@ function showProfileForm() {
     $("#viewTitle").text("Modification");
     renderProfileForm();
 }
+function showAccountDeleteForm() {
+    showForm();
+    $('#commit').hide();
+    $("#hiddenIcon").show();
+    $("#hiddenIcon2").show();
+    $("#viewTitle").text("Confirmation");
+    renderAccountDeleteForm();
+}
 function showVerificationForm() {
     showForm();
     $('#commit').hide();
@@ -847,6 +855,42 @@ function renderProfileForm(){
     $('#deleteCmd').off();
     $('#deleteCmd').on("click", async function () {
         showAccountDeleteForm();
+    });
+}
+function renderAccountDeleteForm(){
+    $("#form").empty();
+    $("#form").append(`
+        <div class="centered" style="width: 50%; min-width: 300px; padding-top: 2rem;">
+            <h2>Voulez-vous vraiment supprimer votre compte?</h2>
+            <input 
+                type="button" 
+                value="Effacer mon compte" 
+                id="deleteBtn" 
+                class="btn btn-danger full-width"
+                style="margin: 1rem 0px;"
+            />
+            <input 
+                type="button" 
+                value="Annuler" 
+                id="cancelBtn" 
+                class="btn btn-secondary full-width"
+                style="margin: 1rem 0px;"
+            />
+        </div>
+    `);
+    $('#deleteBtn').off();
+    $('#deleteBtn').on("click", async function () {
+        await Accounts_API.Delete();
+        if (!Accounts_API.error) {
+            Accounts_API.deleteSessionData();
+            updateDropDownMenu();
+            await showPosts();
+        } else
+            showError("Une erreur est survenue! ", Accounts_API.currentHttpError);
+    });
+    $('#cancelBtn').off();
+    $('#cancelBtn').on("click", async function () {
+        showProfileForm();
     });
 }
 function renderVerificationForm(){
