@@ -197,12 +197,15 @@ async function renderPosts(queryString) {
     addWaitingGif();
     let response = await Posts_API.GetQuery(queryString);
     if (!Posts_API.error) {
+        let loggedUser = null;
+        if (Accounts_API.loggedIn())
+            loggedUser = Accounts_API.retrieveUserData();
         currentETag = response.ETag;
         currentPostsCount = parseInt(currentETag.split("-")[0]);
         let Posts = response.data;
         if (Posts.length > 0) {
             Posts.forEach(Post => {
-                postsPanel.append(renderPost(Post));
+                postsPanel.append(renderPost(Post, loggedUser));
             });
         } else
             endOfData = true;
@@ -217,11 +220,30 @@ async function renderPosts(queryString) {
 }
 function renderPost(post, loggedUser) {
     let date = convertToFrenchDate(UTC_To_Local(post.Date));
-    let crudIcon =
-        `
-        <span class="editCmd cmdIconSmall fa fa-pencil" postId="${post.Id}" title="Modifier nouvelle"></span>
-        <span class="deleteCmd cmdIconSmall fa fa-trash" postId="${post.Id}" title="Effacer nouvelle"></span>
-        `;
+    let crudIcon = "";
+
+    if (Accounts_API.loggedIn()) {
+        if (loggedUser.Id == post.OwnerId)
+            crudIcon += `
+                <span class="editCmd cmdIconSmall fa fa-pencil" postId="${post.Id}" title="Modifier nouvelle"></span>
+                <span class="deleteCmd cmdIconSmall fa fa-trash" postId="${post.Id}" title="Effacer nouvelle"></span>
+            `;
+        else if (Accounts_API.isAdmin())
+            crudIcon += `
+                <span></span>
+                <span class="deleteCmd cmdIconSmall fa fa-trash" postId="${post.Id}" title="Effacer nouvelle"></span>
+            `;
+        else
+            crudIcon += `
+                <span></span>
+                <span></span>
+            `;
+        
+        crudIcon += `
+            <span class="likeCmd cmdIconSmall fa-solid fa-thumbs-up" postId="${post.Id}" title="J'aime"></span>
+            <span>2</span>
+        `;//Likes counts dont exist yet
+    }
 
     return $(`
         <div class="post" id="${post.Id}">

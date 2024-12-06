@@ -38,15 +38,11 @@ class Accounts_API {
     static verified() {
         return this.loggedIn() && this.retrieveUserData().VerifyCode == "verified";
     }
-    static getReadAccess() {
-        if (!this.loggedIn())
-            return 0;
-        return this.retrieveUserData().Authorizations.readAccess;
+    static isSuperUser() {
+        return this.retrieveUserData().isSuper;
     }
-    static getWriteAccess() {
-        if (!this.loggedIn())
-            return 0;
-        return this.retrieveUserData().Authorizations.writeAccess;
+    static isAdmin() {
+        return this.retrieveUserData().isAdmin;
     }
     
     //#region  AJAX FUNCTIONS
