@@ -256,6 +256,12 @@ function updateDropDownMenu() {
     DDMenu.empty();
     //User management
     if (Accounts_API.loggedIn()) {
+        let user = Accounts_API.retrieveUserData();
+        DDMenu.append($(`
+            <div class="dropdown-item menuItemLayout">
+                <b><img class="UserAvatarXSmall" src="${user.Avatar}"></img>${user.Name}</b>
+            </div>
+            `));
         DDMenu.append($(`
             <div class="dropdown-item menuItemLayout" id="profileCmd">
                 <i class="menuIcon fa fa-user-pen mx-2"></i> Modifier votre profil
