@@ -90,6 +90,23 @@ class Accounts_API {
             });
         });
     }
+    // PUT:account/modify body payload[{"Id": 0, "Name": "...", "Email": "...", "Password": "..."}]
+    static async Modify(data) {
+        Accounts_API.initHttpState();
+        return new Promise(resolve => {
+            $.ajax({
+                url: this.API_URL() + "/modify",
+                type: "PUT",
+                contentType: 'application/json',
+                headers: {
+                    'authorization' : `Bearer ${Accounts_API.retrieveAuthToken()}`
+                },
+                data: JSON.stringify(data),
+                success: (data) => { resolve(data); },
+                error: (xhr) => { Accounts_API.setHttpErrorState(xhr); resolve(null); }
+            });
+        });
+    }
     //GET : /accounts/verify?id=...&code=.....
     static async Verify(code) {
         Accounts_API.initHttpState();

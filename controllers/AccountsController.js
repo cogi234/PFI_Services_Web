@@ -171,18 +171,17 @@ export default class AccountsController extends Controller {
         if (AccessControl.writeGranted(this.HttpContext.authorizations, AccessControl.user())) {
             if (this.repository != null) {
                 user.Created = utilities.nowInSeconds();
-                let foundedUser = this.repository.findByField("Id", user.Id);
-                if (foundedUser != null) {
-                    user.Authorizations = foundedUser.Authorizations; // user cannot change its own authorizations
+                let foundUser = this.repository.findByField("Id", user.Id);
+                if (foundUser != null) {
+                    user.Authorizations = foundUser.Authorizations; // user cannot change its own authorizations
                     if (user.Password == '') { // password not changed
-                        user.Password = foundedUser.Password;
+                        user.Password = foundUser.Password;
                     }
-                    user.Authorizations = foundedUser.Authorizations;
-                    if (user.Email != foundedUser.Email) {
+                    if (user.Email != foundUser.Email) {
                         user.VerifyCode = utilities.makeVerifyCode(6);
                         this.sendVerificationEmail(user);
                     } else {
-                        user.VerifyCode = foundedUser.VerifyCode;
+                        user.VerifyCode = foundUser.VerifyCode;
                     }
                     this.repository.update(user.Id, user);
                     let updatedUser = this.repository.get(user.Id); // must get record user.id with binded data

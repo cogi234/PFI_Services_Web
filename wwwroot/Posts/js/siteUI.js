@@ -133,6 +133,14 @@ function showRegisterForm() {
     $("#viewTitle").text("Inscription");
     renderRegisterForm();
 }
+function showProfileForm() {
+    showForm();
+    $('#commit').hide();
+    $("#hiddenIcon").show();
+    $("#hiddenIcon2").show();
+    $("#viewTitle").text("Modification");
+    renderProfileForm();
+}
 function showVerificationForm() {
     showForm();
     $('#commit').hide();
@@ -723,6 +731,112 @@ function renderRegisterForm(){
     $('#cancelCmd').off();
     $('#cancelCmd').on("click", async function () {
         showConnectionForm();
+    });
+}
+function renderProfileForm(){
+    let originalUser = Accounts_API.retrieveUserData();
+    $("#form").empty();
+    $("#form").append(`
+        <form class="form centered" style="width: 50%; min-width: 300px; padding-top: 2rem;"
+            id="profileForm">
+            <div class="input-group">
+                <label for="Email" class="form-label full-width">Adresse courriel</label>
+                <input class="form-control Email full-width"
+                    name="Email"
+                    id="Email"
+                    placeholder="Courriel"
+                    CustomErrorMessage="Ce courriel est déjà utilisé"
+                    required
+                    style="margin: 1rem 0px;"
+                    value="${originalUser.Email}"
+                /><br>
+                <input class="form-control MatchedInput full-width"
+                    matchedInputId="Email"
+                    name="EmailVerification"
+                    id="EmailVerification"
+                    placeholder="Vérification"
+                    required
+                    style="margin: 1rem 0px;"
+                    value="${originalUser.Email}"
+                />
+            </div>
+            <div class="input-group">
+                <label for="Password" class="form-label full-width">Mot de passe</label>
+                <input class="form-control full-width"
+                    type="password"
+                    name="Password" 
+                    id="Password"
+                    placeholder="Mot de passe"
+                    InvalidMessage="Mot de passe incorrect"
+                    style="margin: 1rem 0px;"
+                /><br>
+                <input class="form-control MatchedInput full-width"
+                    type="password"
+                    matchedInputId="Password"
+                    name="PasswordVerification"
+                    id="PasswordVerification"
+                    placeholder="Vérification"
+                    style="margin: 1rem 0px;"
+                />
+            </div>
+            <div class="input-group">
+                <label for="Name" class="form-label full-width">Nom</label>
+                <input class="form-control full-width Alpha"
+                    name="Name" 
+                    id="Name"
+                    placeholder="Nom"
+                    required
+                    style="margin: 1rem 0px;"
+                    value="${originalUser.Name}"
+                />
+            </div>
+            <div class="input-group">
+                <label class="form-label">Avatar </label>
+                <div class='imageUploaderContainer'>
+                    <div class='imageUploader' 
+                        controlId='Avatar'
+                        newImage='false'
+                        imageSrc='${originalUser.Avatar}' 
+                        waitingImage="Loading_icon.gif">
+                    </div>
+                </div>
+            </div>
+            <input 
+                type="submit" 
+                value="Enregistrer" 
+                id="save" 
+                class="btn btn-primary full-width"
+                style="margin: 1rem 0px;"
+            />
+            <input 
+                type="button" 
+                value="Effacer le compte" 
+                id="deleteCmd" 
+                class="btn btn-info full-width"
+                style="margin: 1rem 0px;"
+            />
+        </form>
+    `);
+
+    initImageUploaders();
+    initFormValidation(); // important do to after all html injection!
+    addConflictValidation(Accounts_API.API_URL() + "/conflict", "Email", "register");// Validate email conflicts
+
+    $('#profileForm').off();
+    $('#profileForm').on("submit", async function (event) {
+        event.preventDefault();
+        let userData = getFormData($("#profileForm"));
+        result = await Accounts_API.Modify(userData);
+        if (!Accounts_API.error) {
+            Accounts_API.saveUserData(result);
+            updateDropDownMenu();
+            await showPosts();
+        } else
+            showError("Une erreur est survenue! ", Accounts_API.currentHttpError);
+    });
+    $('#deleteCmd').off();
+    $('#deleteCmd').on("click", async function () {
+        showAccountDeleteForm();
     });
 }
 function renderVerificationForm(){
