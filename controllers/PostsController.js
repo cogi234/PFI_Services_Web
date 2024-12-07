@@ -9,6 +9,12 @@ export default class PostModelsController extends Controller {
         super(HttpContext, new Repository(new PostModel()), { readAccess: 0, writeAccess: 2 });
     }
     
+    post(data) {
+        if (this.HttpContext.user)
+            data.OwnerId = this.HttpContext.user.Id;
+        super.post(data);
+    }
+    
     put(data) {
         let foundPost = this.repository.findByField("Id", data.Id);
         if (foundPost ){
