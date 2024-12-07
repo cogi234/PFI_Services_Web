@@ -275,3 +275,17 @@ label {
 .input-group > input {
     margin: 0px !important;
 }
+
+
+.userLayout {
+    display: grid;
+    grid-template-columns: 50px 130px auto 50px 50px 50px;
+    column-gap: 0.5rem;
+    align-items: center;
+    font-weight: bold;
+    font-size: 0.9em;
+    border: solid var(--borderColor) 2px;
+    border-radius: var(--borderRadius);
+    padding: 0.25rem;
+    margin-bottom: 0.5rem;
+}

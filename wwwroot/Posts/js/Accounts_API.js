@@ -59,7 +59,7 @@ class Accounts_API {
             $.ajax({
                 url: this.API_URL() + (id != null ? "/" + id : ""),
                 headers: this.getAuthTokenHeaders(),
-                complete: data => { resolve({ ETag: data.getResponseHeader('ETag'), data: data.responseJSON }); },
+                success: data => { resolve(data); },
                 error: (xhr) => { Accounts_API.setHttpErrorState(xhr); resolve(null); }
             });
         });
@@ -119,11 +119,11 @@ class Accounts_API {
         });
     }
     // GET:account/remove/id
-    static async Delete() {
+    static async Delete(userId) {
         Accounts_API.initHttpState();
         return new Promise(resolve => {
             $.ajax({
-                url: this.API_URL() + "/remove/" + this.retrieveUserData().Id,
+                url: this.API_URL() + "/remove/" + userId,
                 headers: this.getAuthTokenHeaders(),
                 complete: (data) => { resolve(data); },
                 error: (xhr) => { Accounts_API.setHttpErrorState(xhr); resolve(null); }

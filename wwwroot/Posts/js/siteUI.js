@@ -57,6 +57,8 @@ function initialView() {
     $('#abort').hide();
     $('#form').hide();
     $('#form').empty();
+    $('#usersPanel').hide();
+    $('#usersPanel').empty();
     $('#aboutContainer').hide();
     $('#errorContainer').hide();
     showSearchIcon();
@@ -89,6 +91,8 @@ function showError(message, details = "") {
     hidePosts();
     $('#form').hide();
     $('#form').empty();
+    $('#usersPanel').hide();
+    $('#usersPanel').empty();
     $("#hiddenIcon").show();
     $("#hiddenIcon2").show();
     $('#commit').hide();
@@ -162,6 +166,16 @@ function showVerificationForm() {
     $("#hiddenIcon2").show();
     $("#viewTitle").text("Vérification");
     renderVerificationForm();
+}
+function showUserManagement() {
+    hidePosts();
+    $('#usersPanel').show();
+    $('#commit').hide();
+    $('#abort').show();
+    $("#hiddenIcon").show();
+    $("#hiddenIcon2").show();
+    $("#viewTitle").text("Gestion des usagers");
+    renderUsersManagement();
 }
 
 //////////////////////////// Posts rendering /////////////////////////////////////////////////////////////
@@ -245,8 +259,11 @@ function renderPost(post, loggedUser) {
                 <span></span>
             `;
         let likesText = post.Likes.join('\n');
+        let likeClass = "fa-regular";
+        if (post.Likes.includes(loggedUser.Name))
+            likeClass = "fa-solid"
         crudIcon += `
-            <span class="likeCmd cmdIconSmall fa-solid fa-thumbs-up" postId="${post.Id}" title="${likesText}"></span>
+            <span class="likeCmd cmdIconSmall ${likeClass} fa-thumbs-up" postId="${post.Id}" title="${likesText}"></span>
             <span title="${likesText}">${post.Likes.length}</span>
         `;
     }
@@ -301,7 +318,16 @@ function updateDropDownMenu() {
             <div class="dropdown-item menuItemLayout">
                 <b><img class="UserAvatarXSmall" src="${user.Avatar}"></img>${user.Name}</b>
             </div>
+            <div class="dropdown-divider"></div>
             `));
+        if (Accounts_API.isAdmin()){
+            DDMenu.append($(`
+                <div class="dropdown-item menuItemLayout" id="manageUsersCmd">
+                    <i class="menuIcon fa fa-user-gear mx-2"></i> Gestion des usagers
+                </div>
+                <div class="dropdown-divider"></div>
+            `));
+        }
         DDMenu.append($(`
             <div class="dropdown-item menuItemLayout" id="profileCmd">
                 <i class="menuIcon fa fa-user-pen mx-2"></i> Modifier votre profil
@@ -342,12 +368,19 @@ function updateDropDownMenu() {
         `));
 
     //Commands
+    $('#manageUsersCmd').off();
+    $('#manageUsersCmd').on("click", function () {
+        showUserManagement();
+    });
+    $('#connectCmd').off();
     $('#connectCmd').on("click", function () {
         showConnectionForm();
     });
+    $('#profileCmd').off();
     $('#profileCmd').on("click", function () {
         showProfileForm();
     });
+    $('#disconnectCmd').off();
     $('#disconnectCmd').on("click", async function () {
         Accounts_API.Logout();
         if (!Accounts_API.error) {
@@ -356,14 +389,17 @@ function updateDropDownMenu() {
             await showPosts(true);
         }
     });
+    $('#aboutCmd').off();
     $('#aboutCmd').on("click", function () {
         showAbout();
     });
+    $('#allCatCmd').off();
     $('#allCatCmd').on("click", async function () {
         selectedCategory = "";
         await showPosts(true);
         updateDropDownMenu();
     });
+    $('.category').off();
     $('.category').on("click", async function () {
         selectedCategory = $(this).text().trim();
         await showPosts(true);
@@ -920,7 +956,7 @@ function renderAccountDeleteForm(){
     `);
     $('#deleteBtn').off();
     $('#deleteBtn').on("click", async function () {
-        await Accounts_API.Delete();
+        await Accounts_API.Delete(Accounts_API.retrieveUserData().Id);
         if (!Accounts_API.error) {
             Accounts_API.deleteSessionData();
             updateDropDownMenu();
@@ -976,6 +1012,77 @@ function renderVerificationForm(){
         } else
             showError("Une erreur est survenue! ", Accounts_API.currentHttpError);
     });
+}
+
+async function renderUsersManagement() {
+    let users = await Accounts_API.Get();
+    if (!Accounts_API.error) {
+        let loggedUser = Accounts_API.retrieveUserData();
+
+        $("#usersPanel").empty();
+        for (const user of users) {
+            if (user.Id != loggedUser.Id)//Don't render the connected user, since he can't promote or block himself anyway
+                renderUserManagement(user);
+        }
+        
+        $('.promoteCmd').off();
+        $('.promoteCmd').click(async function () {
+            await Accounts_API.Promote($(this).attr("UserId"));
+            if (!Accounts_API.error) {
+                await renderUsersManagement();
+            } else
+                showError("Une erreur est survenue! ", Accounts_API.currentHttpError);
+        });
+        $('.blockCmd').off();
+        $('.blockCmd').click(async function () {
+            await Accounts_API.Block($(this).attr("UserId"));
+            if (!Accounts_API.error) {
+                await renderUsersManagement();
+            } else
+                showError("Une erreur est survenue! ", Accounts_API.currentHttpError);
+        });
+        $('.deleteCmd').off();
+        $('.deleteCmd').click(async function () {
+            if (confirm("Voulez vous vraiment supprimer cet utilisateur?")) {
+                await Accounts_API.Delete($(this).attr("UserId"));
+                if (!Accounts_API.error) {
+                    await renderUsersManagement();
+                } else
+                    showError("Une erreur est survenue! ", Accounts_API.currentHttpError);
+            }
+        });
+
+    } else {
+        showError(Accounts_API.currentHttpError);
+    }
+}
+function renderUserManagement(user) {
+    let promoteButton;
+    if (user.isBlocked)
+        promoteButton = `<i class="promoteCmd cmdIcon fa fa-ban" UserId="${user.Id}" title="Débloquer"></i>`;
+    else if (user.isAdmin)
+        promoteButton = `<i class="promoteCmd cmdIcon fa fa-user-shield" UserId="${user.Id}" title="Admin"></i>`;
+    else if (user.isSuper)
+        promoteButton = `<i class="promoteCmd cmdIcon fa fa-user-pen" UserId="${user.Id}" title="Écrivain"></i>`;
+    else
+        promoteButton = `<i class="promoteCmd cmdIcon fa fa-user" UserId="${user.Id}" title="Utilisateur"></i>`;
+
+    let blockButton;
+    if (user.isBlocked)
+        blockButton = `<i class="blockCmd cmdIcon fa fa-ban" UserId="${user.Id}" title="Débloquer"></i>`;
+    else
+        blockButton = `<i class="blockCmd cmdIcon fa-regular fa-circle" UserId="${user.Id}" title="Bloquer"></i>`;
+
+    $("#usersPanel").append(`
+        <div class="userLayout">
+            <img class="UserAvatarXSmall" style="cursor: auto;" src="${user.Avatar}">
+            <div>${user.Name}</div>
+            <div>${user.Email}</div>
+            ${promoteButton}
+            ${blockButton}
+            <i class="deleteCmd cmdIcon fa fa-trash" UserId="${user.Id}" title="Supprimer"></i>
+        </div>
+    `);
 }
 
 function getFormData($form) {
