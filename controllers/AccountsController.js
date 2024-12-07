@@ -34,11 +34,13 @@ export default class AccountsController extends Controller {
                 if (user != null) {
                     if (user.Password == loginInfo.Password) {
                         user = this.repository.get(user.Id);
-                        let newToken = TokenManager.create(user);
-                        this.HttpContext.response.created(newToken);
-                    } else {
+                        if (!user.isBlocked){
+                            let newToken = TokenManager.create(user);
+                            this.HttpContext.response.created(newToken);
+                        } else
+                            this.HttpContext.response.blockedUser("This user is blocked.");
+                    } else
                         this.HttpContext.response.wrongPassword("Wrong password.");
-                    }
                 } else
                     this.HttpContext.response.userNotFound("This user email is not found.");
             } else

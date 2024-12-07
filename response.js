@@ -4,8 +4,8 @@
 // Author : Nicolas Chourot
 // Lionel-Groulx College
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-import * as serverVariables from "./serverVariables.js";
 import CachedRequests from "./cachedRequestsManager.js";
+import * as serverVariables from "./serverVariables.js";
 let hideHeadRequest = serverVariables.get("main.hideHeadRequest");
 
 export default class Response {
@@ -102,6 +102,7 @@ export default class Response {
     unverifiedUser(errormessage = '') { return this.status(480, errormessage); }  // custom bad request status
     userNotFound(errormessage = '') { return this.status(481, errormessage); }    // custom bad request status
     wrongPassword(errormessage = '') { return this.status(482, errormessage); }   // custom bad request status
+    blockedUser(errormessage = '') { return this.status(483, errormessage); }   // custom bad request status
 
     /////////////////////////////////////////////// 500 ///////////////////////////////////////////////////////
 

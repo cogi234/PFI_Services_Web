@@ -716,6 +716,8 @@ function renderConnectionForm(message){
             $('#email-error').text('Courriel introuvable');
         }  else if (Accounts_API.currentStatus == 482) {
             $('#password-error').text('Mot de passe incorrect');
+        }  else if (Accounts_API.currentStatus == 483) {
+            showError("Une erreur est survenue! ", 'Votre compte a été bloqué');
         } else
             showError("Une erreur est survenue! ", Accounts_API.currentHttpError);
     });
