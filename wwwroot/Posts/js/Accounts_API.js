@@ -15,7 +15,7 @@ class Accounts_API {
         this.currentStatus = xhr.status;
         this.error = true;
     }
-    
+
     static saveUserData(userObject) {
         sessionStorage.setItem("user", JSON.stringify(userObject));
     }
@@ -30,7 +30,7 @@ class Accounts_API {
     }
     static getAuthTokenHeaders() {
         if (this.loggedIn())
-            return { 'authorization' : `Bearer ${Accounts_API.retrieveAuthToken()}` };
+            return { 'authorization': `Bearer ${Accounts_API.retrieveAuthToken()}` };
         else
             return {};
     }
@@ -50,9 +50,20 @@ class Accounts_API {
     static isAdmin() {
         return this.loggedIn() && this.retrieveUserData().isAdmin;
     }
-    
-    //#region  AJAX FUNCTIONS
 
+    //#region  AJAX FUNCTIONS
+    // GET: /accounts/index/id?
+    static async Get(id = null) {
+        Accounts_API.initHttpState();
+        return new Promise(resolve => {
+            $.ajax({
+                url: this.API_URL() + (id != null ? "/" + id : ""),
+                headers: this.getAuthTokenHeaders(),
+                complete: data => { resolve({ ETag: data.getResponseHeader('ETag'), data: data.responseJSON }); },
+                error: (xhr) => { Accounts_API.setHttpErrorState(xhr); resolve(null); }
+            });
+        });
+    }
     // POST: /token body payload[{"Email": "...", "Password": "..."}]
     static async Login(data) {
         Accounts_API.initHttpState();
@@ -130,6 +141,37 @@ class Accounts_API {
             });
         });
     }
-
+    // POST: account/promote body payload[{"Id": ... }]
+    static async Promote(userId) {
+        Accounts_API.initHttpState();
+        let data = { "Id": userId };
+        return new Promise(resolve => {
+            $.ajax({
+                url: this.API_URL() + "/promote",
+                type: "POST",
+                contentType: 'application/json',
+                headers: this.getAuthTokenHeaders(),
+                data: JSON.stringify(data),
+                success: (data) => { resolve(data); },
+                error: (xhr) => { Accounts_API.setHttpErrorState(xhr); resolve(null); }
+            });
+        });
+    }
+    // POST: account/block body payload[{"Id": ...}]
+    static async Block(userId) {
+        Accounts_API.initHttpState();
+        let data = { "Id": userId };
+        return new Promise(resolve => {
+            $.ajax({
+                url: this.API_URL() + "/block",
+                type: "POST",
+                contentType: 'application/json',
+                headers: this.getAuthTokenHeaders(),
+                data: JSON.stringify(data),
+                success: (data) => { resolve(data); },
+                error: (xhr) => { Accounts_API.setHttpErrorState(xhr); resolve(null); }
+            });
+        });
+    }
     //#endregion
 }

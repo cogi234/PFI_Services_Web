@@ -8,7 +8,7 @@
 import APIServer from "./APIServer.js";
 import RouteRegister from './routeRegister.js';
 
-RouteRegister.add('GET', 'accounts');
+RouteRegister.add('GET', 'accounts', 'index');
 RouteRegister.add('POST', 'accounts', 'register');
 RouteRegister.add('GET', 'accounts', 'verify');
 RouteRegister.add('GET', 'accounts', 'logout');
