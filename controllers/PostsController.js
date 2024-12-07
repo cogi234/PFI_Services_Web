@@ -18,9 +18,10 @@ export default class PostModelsController extends Controller {
     put(data) {
         let foundPost = this.repository.findByField("Id", data.Id);
         if (foundPost ){
-            if (this.HttpContext.user && this.HttpContext.user.Id == foundPost.OwnerId)
+            if (this.HttpContext.user && this.HttpContext.user.Id == foundPost.OwnerId){
+                data.OwnerId = this.HttpContext.user.Id;
                 super.put(data);
-            else
+            } else
                 this.HttpContext.response.unAuthorized("Unauthorized access");
         } else
             this.HttpContext.response.notFound("Ressource not found.");

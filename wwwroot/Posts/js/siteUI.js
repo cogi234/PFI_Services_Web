@@ -228,7 +228,7 @@ function renderPost(post, loggedUser) {
     let date = convertToFrenchDate(UTC_To_Local(post.Date));
     let crudIcon = "";
 
-    if (Accounts_API.loggedIn()) {
+    if (loggedUser) {
         if (loggedUser.Id == post.OwnerId)
             crudIcon += `
                 <span class="editCmd cmdIconSmall fa fa-pencil" postId="${post.Id}" title="Modifier nouvelle"></span>

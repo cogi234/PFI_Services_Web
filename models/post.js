@@ -32,7 +32,6 @@ export default class Post extends Model {
             instance.OwnerName = null;
             instance.OwnerAvatar = null;
         }
-        instance.OwnerId = null;
 
         //Likes binding
         let likes = likesRepository.getAll({ 'PostId' : instance.Id });

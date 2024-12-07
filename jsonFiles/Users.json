@@ -37,5 +37,21 @@
         },
         "VerifyCode": "verified",
         "Id": "f11ee960-aa82-11ef-b942-e7f097a2ee7a"
+    },
+    {
+        "Email": "colinbougie@gmail.com",
+        "EmailVerification": "colinbougie@gmail.com",
+        "Password": "2644151",
+        "PasswordVerification": "2644151",
+        "Name": "Colin Bougie",
+        "Avatar": "3047e761-b440-11ef-81ea-759409c87b64.jpeg",
+        "Created": 1733555325,
+        "VerifyCode": "verified",
+        "Authorizations": {
+            "readAccess": 1,
+            "writeAccess": 1
+        },
+        "Verifycode": 469156,
+        "Id": "3047e760-b440-11ef-81ea-759409c87b64"
     }
 ]
