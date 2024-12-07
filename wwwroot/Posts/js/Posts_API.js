@@ -1,6 +1,7 @@
 class Posts_API {
     static Host_URL() { return "http://localhost:5001"; }
     static API_URL() { return this.Host_URL() + "/api/posts" };
+    static Likes_URL() { return this.Host_URL() + "/likes" }
     static initHttpState() {
         this.currentHttpError = "";
         this.currentStatus = 0;
@@ -75,6 +76,26 @@ class Posts_API {
                 error: (xhr) => {
                     Posts_API.setHttpErrorState(xhr); resolve(null);
                 }
+            });
+        });
+    }
+    static async ToggleLike(postId) {
+        let data = {
+            UserId : Accounts_API.retrieveUserData().Id,
+            PostId : postId
+        };
+        Posts_API.initHttpState();
+        return new Promise(resolve => {
+            $.ajax({
+                url: this.Likes_URL() + '/toggle',
+                type: "POST",
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                headers: {
+                    'authorization' : `Bearer ${Accounts_API.retrieveAuthToken()}`
+                },
+                success: (data) => { resolve(data); },
+                error: (xhr) => { Posts_API.setHttpErrorState(xhr); resolve(null); }
             });
         });
     }

@@ -1,3 +1,4 @@
+import Like from './like.js';
 import Model from './model.js';
 import Repository from './repository.js';
 import User from './user.js';
@@ -20,8 +21,10 @@ export default class Post extends Model {
         instance = super.bindExtraData(instance);
 
         let usersRepository = new Repository(new User());
-        let owner = usersRepository.get(instance.OwnerId);
+        let likesRepository = new Repository(new Like());
 
+        //Owner binding
+        let owner = usersRepository.get(instance.OwnerId);
         if (owner != null) {
             instance.OwnerName = owner.Name;
             instance.OwnerAvatar = owner.Avatar;
@@ -29,8 +32,17 @@ export default class Post extends Model {
             instance.OwnerName = null;
             instance.OwnerAvatar = null;
         }
-
         instance.OwnerId = null;
+
+        //Likes binding
+        let likes = likesRepository.getAll({ 'PostId' : instance.Id });
+        let likers = [];
+        for (const like of likes) {
+            let liker = usersRepository.get(like.UserId);
+            likers.push(liker.Name);
+        }
+        instance.Likes = likers;
+
         return instance;
     }
 }

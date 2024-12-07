@@ -238,11 +238,11 @@ function renderPost(post, loggedUser) {
                 <span></span>
                 <span></span>
             `;
-        
+        let likesText = post.Likes.join('\n');
         crudIcon += `
-            <span class="likeCmd cmdIconSmall fa-solid fa-thumbs-up" postId="${post.Id}" title="J'aime"></span>
-            <span>2</span>
-        `;//Likes counts dont exist yet
+            <span class="likeCmd cmdIconSmall fa-solid fa-thumbs-up" postId="${post.Id}" title="${likesText}"></span>
+            <span title="${likesText}">${post.Likes.length}</span>
+        `;
     }
 
     return $(`
@@ -379,7 +379,7 @@ function attach_Posts_UI_Events_Callback() {
         $(this).hide();
         $(`.postTextContainer[postId=${$(this).attr("postId")}]`).addClass('showExtra');
         $(`.postTextContainer[postId=${$(this).attr("postId")}]`).removeClass('hideExtra');
-    })
+    });
     $(".lessText").off();
     $(".lessText").click(function () {
         $(`.commentsPanel[postId=${$(this).attr("postId")}]`).hide();
@@ -388,7 +388,15 @@ function attach_Posts_UI_Events_Callback() {
         postsPanel.scrollToElem($(this).attr("postId"));
         $(`.postTextContainer[postId=${$(this).attr("postId")}]`).addClass('hideExtra');
         $(`.postTextContainer[postId=${$(this).attr("postId")}]`).removeClass('showExtra');
-    })
+    });
+    $('.likeCmd').off();
+    $('.likeCmd').click(async function () {
+        await Posts_API.ToggleLike($(this).attr("postId"));
+        if (!Posts_API.error) {
+            await showPosts(false);
+        } else
+            showError("Une erreur est survenue! ", Posts_API.currentHttpError);
+    });
 }
 function addWaitingGif() {
     clearTimeout(waiting);
