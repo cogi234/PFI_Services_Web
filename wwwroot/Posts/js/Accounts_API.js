@@ -28,6 +28,12 @@ class Accounts_API {
     static retrieveAuthToken() {
         return sessionStorage.getItem("auth_token");
     }
+    static getAuthTokenHeaders() {
+        if (this.loggedIn())
+            return { 'authorization' : `Bearer ${Accounts_API.retrieveAuthToken()}` };
+        else
+            return {};
+    }
     static deleteSessionData() {
         sessionStorage.clear();
     }
@@ -94,9 +100,7 @@ class Accounts_API {
                 url: this.API_URL() + "/modify",
                 type: "PUT",
                 contentType: 'application/json',
-                headers: {
-                    'authorization' : `Bearer ${Accounts_API.retrieveAuthToken()}`
-                },
+                headers: this.getAuthTokenHeaders(),
                 data: JSON.stringify(data),
                 success: (data) => { resolve(data); },
                 error: (xhr) => { Accounts_API.setHttpErrorState(xhr); resolve(null); }
@@ -109,9 +113,7 @@ class Accounts_API {
         return new Promise(resolve => {
             $.ajax({
                 url: this.API_URL() + "/remove/" + this.retrieveUserData().Id,
-                headers: {
-                    'authorization' : `Bearer ${Accounts_API.retrieveAuthToken()}`
-                },
+                headers: this.getAuthTokenHeaders(),
                 complete: (data) => { resolve(data); },
                 error: (xhr) => { Accounts_API.setHttpErrorState(xhr); resolve(null); }
             });

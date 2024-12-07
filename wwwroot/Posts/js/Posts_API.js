@@ -59,9 +59,7 @@ class Posts_API {
                 type: create ? "POST" : "PUT",
                 contentType: 'application/json',
                 data: JSON.stringify(data),
-                headers: {
-                    'authorization' : `Bearer ${Accounts_API.retrieveAuthToken()}`
-                },
+                headers: Accounts_API.getAuthTokenHeaders(),
                 success: (data) => { resolve(data); },
                 error: (xhr) => { Posts_API.setHttpErrorState(xhr); resolve(null); }
             });
@@ -72,9 +70,7 @@ class Posts_API {
             $.ajax({
                 url: this.API_URL() + "/" + id,
                 type: "DELETE",
-                headers: {
-                    'authorization' : `Bearer ${Accounts_API.retrieveAuthToken()}`
-                },
+                headers: Accounts_API.getAuthTokenHeaders(),
                 success: () => {
                     Posts_API.initHttpState();
                     resolve(true);
@@ -97,9 +93,7 @@ class Posts_API {
                 type: "POST",
                 contentType: 'application/json',
                 data: JSON.stringify(data),
-                headers: {
-                    'authorization' : `Bearer ${Accounts_API.retrieveAuthToken()}`
-                },
+                headers: Accounts_API.getAuthTokenHeaders(),
                 success: (data) => { resolve(data); },
                 error: (xhr) => { Posts_API.setHttpErrorState(xhr); resolve(null); }
             });
