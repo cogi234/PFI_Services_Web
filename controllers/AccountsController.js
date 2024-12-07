@@ -1,5 +1,6 @@
 import AccessControl from '../accessControl.js';
 import Gmail from "../gmail.js";
+import Like from '../models/like.js';
 import Repository from '../models/repository.js';
 import UserModel from '../models/user.js';
 import TokenManager from '../tokensManager.js';
@@ -207,8 +208,14 @@ export default class AccountsController extends Controller {
     remove(id) { // warning! this is not an API endpoint 
         if (AccessControl.writeGrantedAdminOrOwner(this.HttpContext, this.requiredAuthorizations, id)) {
             if (this.HttpContext.path.id !== '') {
-                if (this.repository.remove(id))
+                if (this.repository.remove(id)){
+                    let likesRepository = new Repository(new Like());
+                    let likes = likesRepository.getAll({ 'PostId' : instance.Id });
+                    for (const like of likes) {
+                        likesRepository.remove(like.Id);
+                    }
                     this.HttpContext.response.accepted();
+                }
                 else
                     this.HttpContext.response.notFound("Ressource not found.");
             } else
