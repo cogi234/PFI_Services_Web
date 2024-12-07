@@ -72,7 +72,7 @@
 
 .ownerLayout {
     display: grid;
-    grid-template-columns: 50px auto;
+    grid-template-columns: 50px max-content auto;
     align-items: center;
     font-weight: bold;
     font-size: 0.9em;
@@ -81,9 +81,10 @@
 .postDate {
     margin-top: 4px;
     font-size: 10px;
-    margin-bottom: 20px;
+    margin-bottom: 0px;
     color: gray;
     text-align: right;
+    height: 100%;
 }
 
 .postOwnerAndDate {

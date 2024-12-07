@@ -259,7 +259,11 @@ function renderPost(post, loggedUser) {
             </div>
             <div class="postTitle"> ${post.Title} </div>
             <img class="postImage" src='${post.Image}'/>
-            <div class="postDate"> ${date} </div>
+            <div class="ownerLayout">
+                <img class="UserAvatarXSmall" src="${post.OwnerAvatar}">
+                <span>${post.OwnerName}</span>
+                <div class="postDate"> ${date} </div>
+            </div>
             <div postId="${post.Id}" class="postTextContainer hideExtra">
                 <div class="postText" >${post.Text}</div>
             </div>
