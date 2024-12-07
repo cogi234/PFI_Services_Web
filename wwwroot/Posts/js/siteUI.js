@@ -19,6 +19,7 @@ let showKeywords = false;
 let keywordsOnchangeTimger = null;
 
 Init_UI();
+initTimeout(-1, timeoutCallback);
 async function Init_UI() {
     postsPanel = new PageManager('postsScrollPanel', 'postsPanel', 'postSample', renderPosts);
     $('#createPost').on("click", async function () {
@@ -38,6 +39,33 @@ async function Init_UI() {
     installKeywordsOnkeyupEvent();
     await showPosts();
     start_Periodic_Refresh();
+}
+
+function timeoutCallback() {
+    Accounts_API.deleteSessionData();
+    showConnectionForm("Votre session a expiré. Veuillez vous reconnecter.");
+}
+function startTimeout(targetTime){
+    let secondsToWait = targetTime - nowInSeconds();
+    timeout(secondsToWait);
+}
+function extendTimeout(){
+    timeLeft = maxStallingTime;
+}
+function stopTimeout(){
+    noTimeout();
+}
+
+function nowInSeconds() {
+    const now = Local_to_UTC(new Date());
+    return Math.round(now/*.getTime()*/ / 1000);
+}
+function Local_to_UTC(Local_numeric_date) {
+    let UTC_Offset = new Date().getTimezoneOffset() / 60;
+    let Local_Date = new Date(Local_numeric_date);
+    Local_Date.setHours(Local_Date.getHours() + UTC_Offset);
+    let UTC_numeric_date = Local_Date.getTime();
+    return UTC_numeric_date;
 }
 
 /////////////////////////// Views management ////////////////////////////////////////////////////////////
@@ -385,6 +413,7 @@ function updateDropDownMenu() {
         Accounts_API.Logout();
         if (!Accounts_API.error) {
             Accounts_API.deleteSessionData();
+            stopTimeout();
             updateDropDownMenu();
             await showPosts(true);
         }
@@ -541,6 +570,8 @@ async function renderDeletePostForm(id) {
             $('#commit').on("click", async function () {
                 await Posts_API.Delete(post.Id);
                 if (!Posts_API.error) {
+                    if (Accounts_API.loggedIn())
+                        extendTimeout()
                     await showPosts();
                 }
                 else {
@@ -639,6 +670,8 @@ function renderPostForm(post = null) {
         delete post.keepDate;
         post = await Posts_API.Save(post, create);
         if (!Posts_API.error) {
+            if (Accounts_API.loggedIn())
+                extendTimeout()
             await showPosts();
             postsPanel.scrollToElem(post.Id);
         }
@@ -710,6 +743,7 @@ function renderConnectionForm(message){
         if (!Accounts_API.error) {
             Accounts_API.saveUserData(result.User);
             Accounts_API.saveAuthToken(result.Access_token);
+            startTimeout(result.Expire_Time);
             updateDropDownMenu();
             await showPosts();
         }  else if (Accounts_API.currentStatus == 481) {
@@ -924,6 +958,8 @@ function renderProfileForm(){
         let userData = getFormData($("#profileForm"));
         result = await Accounts_API.Modify(userData);
         if (!Accounts_API.error) {
+            if (Accounts_API.loggedIn())
+                extendTimeout()
             Accounts_API.saveUserData(result);
             updateDropDownMenu();
             await showPosts();
@@ -1019,6 +1055,8 @@ function renderVerificationForm(){
 async function renderUsersManagement() {
     let users = await Accounts_API.Get();
     if (!Accounts_API.error) {
+        if (Accounts_API.loggedIn())
+            extendTimeout()
         let loggedUser = Accounts_API.retrieveUserData();
 
         $("#usersPanel").empty();
@@ -1031,6 +1069,8 @@ async function renderUsersManagement() {
         $('.promoteCmd').click(async function () {
             await Accounts_API.Promote($(this).attr("UserId"));
             if (!Accounts_API.error) {
+                if (Accounts_API.loggedIn())
+                    extendTimeout()
                 await renderUsersManagement();
             } else
                 showError("Une erreur est survenue! ", Accounts_API.currentHttpError);
@@ -1039,6 +1079,8 @@ async function renderUsersManagement() {
         $('.blockCmd').click(async function () {
             await Accounts_API.Block($(this).attr("UserId"));
             if (!Accounts_API.error) {
+                if (Accounts_API.loggedIn())
+                    extendTimeout()
                 await renderUsersManagement();
             } else
                 showError("Une erreur est survenue! ", Accounts_API.currentHttpError);
@@ -1048,6 +1090,8 @@ async function renderUsersManagement() {
             if (confirm("Voulez vous vraiment supprimer cet utilisateur?")) {
                 await Accounts_API.Delete($(this).attr("UserId"));
                 if (!Accounts_API.error) {
+                    if (Accounts_API.loggedIn())
+                        extendTimeout()
                     await renderUsersManagement();
                 } else
                     showError("Une erreur est survenue! ", Accounts_API.currentHttpError);
