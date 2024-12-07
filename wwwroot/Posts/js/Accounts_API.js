@@ -39,10 +39,10 @@ class Accounts_API {
         return this.loggedIn() && this.retrieveUserData().VerifyCode == "verified";
     }
     static isSuperUser() {
-        return this.retrieveUserData().isSuper;
+        return this.loggedIn() && this.retrieveUserData().isSuper;
     }
     static isAdmin() {
-        return this.retrieveUserData().isAdmin;
+        return this.loggedIn() && this.retrieveUserData().isAdmin;
     }
     
     //#region  AJAX FUNCTIONS

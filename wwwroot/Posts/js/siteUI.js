@@ -43,9 +43,15 @@ async function Init_UI() {
 /////////////////////////// Views management ////////////////////////////////////////////////////////////
 
 function initialView() {
-    $("#createPost").show();
+    if (Accounts_API.isSuperUser()) {
+        $("#createPost").show();
+        $("#hiddenIcon2").hide();
+    }
+    else {
+        $("#createPost").hide();
+        $("#hiddenIcon2").show();
+    }
     $("#hiddenIcon").hide();
-    $("#hiddenIcon2").hide();
     $('#menu').show();
     $('#commit').hide();
     $('#abort').hide();
