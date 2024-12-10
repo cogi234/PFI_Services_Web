@@ -58,15 +58,8 @@ function stopTimeout(){
 }
 
 function nowInSeconds() {
-    const now = Local_to_UTC(new Date());
-    return Math.round(now/*.getTime()*/ / 1000);
-}
-function Local_to_UTC(Local_numeric_date) {
-    let UTC_Offset = new Date().getTimezoneOffset() / 60;
-    let Local_Date = new Date(Local_numeric_date);
-    Local_Date.setHours(Local_Date.getHours() + UTC_Offset);
-    let UTC_numeric_date = Local_Date.getTime();
-    return UTC_numeric_date;
+    const now = new Date().getTime();
+    return Math.round(now / 1000);
 }
 
 /////////////////////////// Views management ////////////////////////////////////////////////////////////
