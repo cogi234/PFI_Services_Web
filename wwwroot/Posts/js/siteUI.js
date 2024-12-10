@@ -44,13 +44,14 @@ async function Init_UI() {
 function timeoutCallback() {
     Accounts_API.deleteSessionData();
     showConnectionForm("Votre session a expiré. Veuillez vous reconnecter.");
+    stopTimeout();
 }
 function startTimeout(targetTime){
-    let secondsToWait = targetTime - nowInSeconds();
+    let secondsToWait = targetTime - nowInSeconds() - 5;
     timeout(secondsToWait);
 }
 function extendTimeout(){
-    timeLeft = maxStallingTime;
+    timeLeft = maxStallingTime - 5;
 }
 function stopTimeout(){
     noTimeout();
@@ -468,6 +469,7 @@ function attach_Posts_UI_Events_Callback() {
     $('.likeCmd').click(async function () {
         await Posts_API.ToggleLike($(this).attr("postId"));
         if (!Posts_API.error) {
+            extendTimeout();
             await showPosts(false);
         } else
             showError("Une erreur est survenue! ", Posts_API.currentHttpError);

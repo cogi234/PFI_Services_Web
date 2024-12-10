@@ -43,6 +43,7 @@ function startCountdown() {
     if (timeLeft != infinite) {
         currentTimeouID = setInterval(() => {
             timeLeft = timeLeft - 1;
+            console.log(`${timeLeft} seconds left`);
             if (timeLeft > 0) {
                 if (timeLeft <= 10) {
                     $(".popup").show();
