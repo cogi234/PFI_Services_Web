@@ -35,12 +35,12 @@ export default class Post extends Model {
 
         //Likes binding
         let likes = likesRepository.getAll({ 'PostId' : instance.Id });
-        let likers = [];
+        let names = [];
         for (const like of likes) {
             let liker = usersRepository.get(like.UserId);
-            likers.push(liker.Name);
+            names.push(liker.Name);
         }
-        instance.Likes = likers;
+        instance.Likes = names;
 
         return instance;
     }
