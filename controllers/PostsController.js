@@ -29,7 +29,7 @@ export default class PostModelsController extends Controller {
 
     
     remove(id) {
-        let foundPost = this.repository.findByField("Id", data.Id);
+        let foundPost = this.repository.findByField("Id", id);
         if (foundPost){
             if (this.HttpContext.user && (this.HttpContext.user.Id == foundPost.OwnerId || this.HttpContext.user.isAdmin))
                 super.remove(id);
